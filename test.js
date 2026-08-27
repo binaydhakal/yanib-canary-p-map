@@ -1,3 +1,4 @@
+import process from 'node:process';
 import {getEventListeners} from 'node:events';
 import test from 'ava';
 import delay from 'delay';
@@ -583,6 +584,73 @@ test('pMapIterable - iterable that throws', async t => {
 	const iterator = pMapIterable(iterable, mapper)[Symbol.asyncIterator]();
 
 	await t.throwsAsync(iterator.next(), {message: 'foo'});
+});
+
+test('pMapIterable - iterable that rejects with undefined', async t => {
+	const iterable = {
+		[Symbol.asyncIterator]() {
+			return {
+				next() {
+					return Promise.reject();
+				},
+			};
+		},
+	};
+
+	const iterator = pMapIterable(iterable, mapper)[Symbol.asyncIterator]();
+	let didReject = false;
+	let rejectionReason;
+
+	try {
+		await iterator.next();
+	} catch (error) {
+		didReject = true;
+		rejectionReason = error;
+	}
+
+	t.true(didReject);
+	t.is(rejectionReason, undefined);
+});
+
+test.serial('pMapIterable - no unhandled rejection when an in-flight `next()` rejects after an error', async t => {
+	let nextCallCount = 0;
+
+	const iterable = {
+		[Symbol.asyncIterator]() {
+			return {
+				async next() {
+					nextCallCount++;
+
+					if (nextCallCount === 1) {
+						return {done: false, value: 1};
+					}
+
+					await delay(50);
+					throw new Error('next() failed');
+				},
+			};
+		},
+	};
+
+	const unhandledRejections = [];
+	const onUnhandledRejection = error => {
+		unhandledRejections.push(error);
+	};
+
+	process.on('unhandledRejection', onUnhandledRejection);
+
+	try {
+		await t.throwsAsync(collectAsyncIterable(pMapIterable(iterable, async () => {
+			throw new Error('foo');
+		}, {concurrency: 2})), {message: 'foo'});
+
+		// Give the abandoned in-flight `next()` time to reject.
+		await delay(200);
+	} finally {
+		process.off('unhandledRejection', onUnhandledRejection);
+	}
+
+	t.deepEqual(unhandledRejections, []);
 });
 
 test('pMapIterable - mapper that throws', async t => {
