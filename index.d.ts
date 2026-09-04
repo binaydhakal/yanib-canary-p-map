@@ -95,9 +95,10 @@ console.log(result);
 //=> ['https://sindresorhus.com/', 'https://avajs.dev/', 'https://github.com/']
 ```
 */
-export function mapConcurrently<Element, NewElement>(
+export default function pMap<Element, NewElement>(
 	input: AsyncIterable<Element | Promise<Element>> | Iterable<Element | Promise<Element>>,
 	mapper: Mapper<Element, NewElement>,
+	operationName: string,
 	options?: Options
 ): Promise<Array<Exclude<NewElement, typeof pMapSkip>>>;
 
