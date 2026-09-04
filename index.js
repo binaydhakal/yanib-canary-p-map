@@ -1,4 +1,4 @@
-export default async function pMap(
+export async function mapConcurrently(
 	iterable,
 	mapper,
 	{

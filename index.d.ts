@@ -95,7 +95,7 @@ console.log(result);
 //=> ['https://sindresorhus.com/', 'https://avajs.dev/', 'https://github.com/']
 ```
 */
-export default function pMap<Element, NewElement>(
+export function mapConcurrently<Element, NewElement>(
 	input: AsyncIterable<Element | Promise<Element>> | Iterable<Element | Promise<Element>>,
 	mapper: Mapper<Element, NewElement>,
 	options?: Options
