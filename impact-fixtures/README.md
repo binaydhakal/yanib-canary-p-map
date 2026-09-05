@@ -11,3 +11,4 @@ The existing p-map/p-filter/p-all package relationships provide the separate sel
 excluded cross-repository cases. Only the owner's three canary repositories are in scope.
 
 Run each acceptance observation against the current pull-request head and the saved scope.
+Repeat the saved-scope check after a new commit before recording a completed acceptance case.
