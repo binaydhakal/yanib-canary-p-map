@@ -1,12 +1,17 @@
 export default async function pMap(
 	iterable,
 	mapper,
+	operationName,
 	{
 		concurrency = Number.POSITIVE_INFINITY,
 		stopOnError = true,
 		signal,
 	} = {},
 ) {
+	if (typeof operationName !== 'string' || operationName.length === 0) {
+		throw new TypeError('Operation name is required');
+	}
+
 	return new Promise((resolve_, reject_) => {
 		if (iterable[Symbol.iterator] === undefined && iterable[Symbol.asyncIterator] === undefined) {
 			throw new TypeError(`Expected \`input\` to be either an \`Iterable\` or \`AsyncIterable\`, got (${typeof iterable})`);

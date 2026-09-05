@@ -98,6 +98,7 @@ console.log(result);
 export default function pMap<Element, NewElement>(
 	input: AsyncIterable<Element | Promise<Element>> | Iterable<Element | Promise<Element>>,
 	mapper: Mapper<Element, NewElement>,
+	operationName: string,
 	options?: Options
 ): Promise<Array<Exclude<NewElement, typeof pMapSkip>>>;
 
